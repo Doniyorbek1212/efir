@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Efir va Kommentariya</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        #mainContainer {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #streamSection {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: #e9ecef;
+        }
+
+        #videoContainer {
+            width: 80%;
+            max-width: 600px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background: black;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #commentSection {
+            width: 80%;
+            max-width: 600px;
+            background: #fff;
+            border-top: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #commentsList {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            max-height: 200px;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .comment {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comment .username {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        #commentInputContainer {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #commentInput,
+        #usernameInput,
+        #passwordInput {
+            flex-grow: 1;
+            height: 40px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        #sendCommentButton,
+        #startStreamButton {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        #sendCommentButton:hover,
+        #startStreamButton:hover {
+            background-color: #45a049;
+        }
+
+        #startStreamButton {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="mainContainer">
+        <!-- Efir va kommentariya bo'limi -->
+        <div id="streamSection">
+            <div id="passwordContainer">
+                <input type="text" id="passwordInput" placeholder="Power yoki ADM so'zini kiriting..." />
+                <button id="startStreamButton" style="display: none;">Efirni Boshlash</button>
+            </div>
+            <div id="videoContainer">
+                <video id="video" autoplay muted></video>
+            </div>
+            <div id="commentSection">
+                <div id="commentsList"></div>
+                <div id="commentInputContainer">
+                    <input type="text" id="usernameInput" placeholder="Ismingizni kiriting..." />
+                    <input type="text" id="commentInput" placeholder="Kommentariya yozing..." />
+                    <button id="sendCommentButton">Yuborish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('video');
+            const commentInput = document.getElementById('commentInput');
+            const usernameInput = document.getElementById('usernameInput');
+            const sendCommentButton = document.getElementById('sendCommentButton');
+            const commentsList = document.getElementById('commentsList');
+            const startStreamButton = document.getElementById('startStreamButton');
+            const passwordInput = document.getElementById('passwordInput');
+
+            // Efirni boshlash uchun password tekshiruvi
+            passwordInput.addEventListener('input', () => {
+                const password = passwordInput.value.trim().toLowerCase();
+
+                // Power yoki ADM yoki Power G so'zlarini tekshirish
+                if (password === 'power' || password === 'adm' || password === 'power g') {
+                    startStreamButton.style.display = 'block';
+                } else {
+                    startStreamButton.style.display = 'none';
+                }
+            });
+
+            // Efirni boshlash
+            startStreamButton.addEventListener('click', () => {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                    .then((stream) => {
+                        video.srcObject = stream;
+                    })
+                    .catch((error) => {
+                        console.error('Kameraga ulanishda xatolik:', error);
+                        alert('Kamera va mikrofonni yoqish uchun ruxsat bering!');
+                    });
+            });
+
+            // Kommentariya yuborish
+            sendCommentButton.addEventListener('click', () => {
+                const commentText = commentInput.value.trim();
+                const username = usernameInput.value.trim();
+
+                if (!username) {
+                    alert('Iltimos, ismingizni kiriting!');
+                    return;
+                }
+
+                if (commentText) {
+                    const comment = document.createElement('div');
+                    comment.className = 'comment';
+                    comment.innerHTML = `<span class="username">${username}:</span> ${commentText}`;
+                    commentsList.prepend(comment); // Kommentni yuqoriga qo'shish
+
+                    commentInput.value = ''; // Komment maydonini tozalash
+                } else {
+                    alert('Iltimos, kommentariya yozing!');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
